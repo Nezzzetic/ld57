@@ -18,7 +18,7 @@ public class Rock : MonoBehaviour
             Vector3 mousePos = Input.mousePosition;
             mousePos.z = 10f; // Distance from camera
             Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
-            transform.position = new Vector3(worldPos.x, 2f, worldPos.z); // Float above ground
+            transform.position = new Vector3(worldPos.x, 0.5f, worldPos.z); // Float above ground
         }
 
         if (Input.GetMouseButtonDown(0))
@@ -43,7 +43,7 @@ public class Rock : MonoBehaviour
             {
                 isHeld = true;
                 rb.useGravity = false;
-                rb.velocity = Vector3.zero;
+                rb.linearVelocity = Vector3.zero;
             }
         }
     }
