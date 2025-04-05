@@ -5,7 +5,6 @@ using static UnityEngine.CullingGroup;
 public class Hole : MonoBehaviour
 {
     public float echoDelay = 1.0f;
-    public AudioClip echoSound;
     public RhythmManager rhythmManager;
 
     public Renderer markerRenderer;
@@ -18,16 +17,18 @@ public class Hole : MonoBehaviour
     private AudioSource audioSource;
     private HoleState state = HoleState.Inactive;
     public HoleState CurrentState => state;
+    private Rock currentRock;
+
+    private float PlayEchoTimer=-1;
 
 
-    void Start()
+    void Awake()
 {
     audioSource = gameObject.AddComponent<AudioSource>();
-    audioSource.clip = echoSound;
     audioSource.playOnAwake = false;
 
-    SetState(HoleState.Active);
-
+    SetState(HoleState.Inactive);
+    PlayEchoTimer = -1;
     FindObjectOfType<HoleManager>()?.RegisterHole(this);
 }
 
@@ -50,13 +51,19 @@ public class Hole : MonoBehaviour
 
             case HoleState.Active:
                 markerRenderer.material.color = activeColor;
+                PlayEchoTimer = -1;
+                if (currentRock != null) { Destroy(currentRock); currentRock = null; }
                 break;
 
             case HoleState.FlyingStone:
                 markerRenderer.material.color = flyingColor;
+                audioSource.clip = currentRock.enterSound;
+                audioSource.Play();
                 break;
 
             case HoleState.Landed:
+                audioSource.clip = currentRock.echoSound;
+                audioSource.Play();
                 // Result color (green/yellow) applied after echo
                 break;
         }
@@ -72,16 +79,15 @@ public class Hole : MonoBehaviour
             Rock rock = other.GetComponent<Rock>();
             if (rock != null)
                 rock.SetState(RockState.EnteringHole);
-
+            currentRock = rock;
             SetState(HoleState.FlyingStone);
 
-            Invoke(nameof(PlayEcho), echoDelay);
+            PlayEchoTimer=echoDelay;
         }
     }
 
     void PlayEcho()
     {
-        audioSource.Play();
         float echoTime = Time.time;
 
         RhythmResult result = rhythmManager.RegisterEchoWithResult(echoTime);
@@ -96,5 +102,15 @@ public class Hole : MonoBehaviour
         }
 
         SetState(HoleState.Landed);
+    }
+
+    private void Update()
+    {
+        if (PlayEchoTimer <= 0) return;
+        PlayEchoTimer -= Time.deltaTime;
+        if (PlayEchoTimer <= 0)
+        {
+            PlayEcho();
+        }
     }
 }

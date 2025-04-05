@@ -6,6 +6,9 @@ public class Rock : MonoBehaviour
 {
     public RockState CurrentState { get; private set; } = RockState.Idle;
     private Rigidbody rb;
+    public Collider Mycollider;
+    public AudioClip echoSound;
+    public AudioClip enterSound;
 
     public event Action<RockState> OnStateChanged;
 
@@ -37,11 +40,13 @@ public class Rock : MonoBehaviour
             case RockState.Held:
                 rb.useGravity = false;
                 rb.linearVelocity = Vector3.zero;
+                Mycollider.enabled= false;
                 break;
 
             case RockState.Falling:
             case RockState.Idle:
                 rb.useGravity = true;
+                Mycollider.enabled = true;
                 break;
         }
     }

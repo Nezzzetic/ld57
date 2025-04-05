@@ -4,16 +4,17 @@ using UnityEngine;
 public class HoleManager : MonoBehaviour
 {
     public List<Hole> allHoles = new List<Hole>();
-    private int currentHoleIndex = 0;
+    public int currentHoleIndex = 1;
 
     [SerializeField]
-    private List<Hole> orderedHoles = new List<Hole>(); // drag in Unity in order
+    private List<Hole> orderedHoles;
+
 
 
     void Start()
     {
         RegisterAllHoles(); // optional
-        ActivateHoleAtIndex(currentHoleIndex);
+        ActivateHoleToIndex(currentHoleIndex);
     }
 
     public void ActivateHoleAtIndex(int index)
@@ -24,6 +25,19 @@ public class HoleManager : MonoBehaviour
         {
             orderedHoles[index].SetState(HoleState.Active);
         }
+    }
+
+    public void ActivateHoleToIndex(int index)
+    {
+        ResetAll(); // deactivate everything
+        for (int i = 0; i < index+1; i++)
+        {
+            if (i < allHoles.Count)
+            {
+                allHoles[i].SetState(HoleState.Active);
+            }
+        }
+        
     }
 
     public void RegisterHole(Hole hole)
@@ -65,29 +79,41 @@ public class HoleManager : MonoBehaviour
         }
     }
 
-    private void OnHoleStateChanged(HoleState newState)
+    public void ResetActivateAll()
     {
-        if (newState == HoleState.Landed)
+        foreach (var hole in allHoles)
         {
-            if (AllCurrentHolesFinished())
-            {
-                AdvanceToNextHole();
-            }
+            if (hole.CurrentState!=HoleState.Inactive)
+                hole.SetState(HoleState.Active);
         }
     }
 
-    void AdvanceToNextHole()
+    private void OnHoleStateChanged(HoleState newState)
     {
-        currentHoleIndex++;
-        if (currentHoleIndex < orderedHoles.Count)
+
+    }
+
+    public void ActivateNextHole()
+    {
+        if (currentHoleIndex >= orderedHoles.Count)
         {
-            ActivateHoleAtIndex(currentHoleIndex);
+            Debug.Log("All holes activated.");
+            return;
+        }
+
+        var hole = orderedHoles[currentHoleIndex];
+
+        if (hole.CurrentState == HoleState.Inactive)
+        {
+            hole.SetState(HoleState.Active);
+            currentHoleIndex++;
         }
         else
         {
-            Debug.Log("All holes completed!");
+            Debug.LogWarning($"Hole {currentHoleIndex} is already activated or used.");
         }
     }
+
 
     bool AllCurrentHolesFinished()
     {
@@ -115,5 +141,10 @@ public class HoleManager : MonoBehaviour
         {
             hole.OnStateChanged += OnHoleStateChanged;
         }
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R) ) ResetActivateAll();
     }
 }

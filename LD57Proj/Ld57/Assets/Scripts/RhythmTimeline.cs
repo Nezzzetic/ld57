@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class RhythmTimeline : MonoBehaviour
 {
@@ -8,7 +8,6 @@ public class RhythmTimeline : MonoBehaviour
     public RectTransform timelineFill;
     public GameObject expectedMarkPrefab;
     public GameObject actualMarkPrefab;
-
     public float pixelsPerSecond = 60f;
 
     private bool timelineStarted = false;
@@ -18,29 +17,49 @@ public class RhythmTimeline : MonoBehaviour
 
     void Start()
     {
-        // Preload all expected markers and position them statically
-        foreach (float beatTime in rhythmManager.targetBeats)
-        {
-            GameObject marker = Instantiate(expectedMarkPrefab, timelineFill);
-            var rect = marker.GetComponent<RectTransform>();
-
-            float y = beatTime * pixelsPerSecond;
-            rect.anchoredPosition = new Vector2(0, y);
-
-            var scrolling = marker.AddComponent<ScrollingMark>();
-            scrolling.spawnTime = beatTime;
-            scrolling.pixelsPerSecond = pixelsPerSecond;
-            scrolling.originalY = y;
-            scrollingMarks.Add(scrolling);
-        }
-
         rhythmManager.OnStart += () =>
         {
             timelineStarted = true;
             startTime = Time.time;
         };
 
-        rhythmManager.OnEchoRegistered += AddActualMarker;
+        rhythmManager.OnEchoRegistered += AddActualMark;
+
+        BuildInitialTimeline();
+    }
+
+    public void ResetTimeline()
+    {
+        // Destroy all current markers
+        foreach (var mark in scrollingMarks)
+        {
+            if (mark != null)
+                Destroy(mark.gameObject);
+        }
+
+        scrollingMarks.Clear();
+        BuildInitialTimeline();
+
+        timelineStarted = false;
+        startTime = -1f;
+    }
+
+    private void BuildInitialTimeline()
+    {
+        foreach (float beat in rhythmManager.targetBeats)
+        {
+            var marker = Instantiate(expectedMarkPrefab, timelineFill);
+            var rect = marker.GetComponent<RectTransform>();
+            float y = beat * pixelsPerSecond;
+            rect.anchoredPosition = new Vector2(0, y);
+
+            var scroll = marker.AddComponent<ScrollingMark>();
+            scroll.spawnTime = beat;
+            scroll.pixelsPerSecond = pixelsPerSecond;
+            scroll.originalY = y;
+
+            scrollingMarks.Add(scroll);
+        }
     }
 
     void Update()
@@ -56,18 +75,18 @@ public class RhythmTimeline : MonoBehaviour
         }
     }
 
-    void AddActualMarker(float songTime)
+    private void AddActualMark(float songTime)
     {
-        GameObject marker = Instantiate(actualMarkPrefab, timelineFill);
+        var marker = Instantiate(actualMarkPrefab, timelineFill);
         var rect = marker.GetComponent<RectTransform>();
-
         float y = songTime * pixelsPerSecond;
         rect.anchoredPosition = new Vector2(0, y);
 
-        var scrolling = marker.AddComponent<ScrollingMark>();
-        scrolling.spawnTime = songTime;
-        scrolling.originalY = y;
-        scrolling.pixelsPerSecond = pixelsPerSecond;
-        scrollingMarks.Add(scrolling);
+        var scroll = marker.AddComponent<ScrollingMark>();
+        scroll.spawnTime = songTime;
+        scroll.originalY = y;
+        scroll.pixelsPerSecond = pixelsPerSecond;
+
+        scrollingMarks.Add(scroll);
     }
 }

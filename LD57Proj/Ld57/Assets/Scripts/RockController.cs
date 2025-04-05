@@ -31,7 +31,7 @@ public class RockController : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             Rock rock = hit.collider.GetComponent<Rock>();
-            if (rock != null)
+            if (rock != null && rock.CurrentState!=RockState.EnteringHole)
             {
                 heldRock = rock;
                 heldRock.SetState(RockState.Held);

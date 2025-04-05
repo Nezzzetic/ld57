@@ -8,6 +8,10 @@ public class RhythmManager : MonoBehaviour
 
     public float startTime = -1f;
     private int nextExpectedBeat = 0;
+    private int hitCount = 0;
+
+    public HoleManager holeManager;
+    public RhythmTimeline rhythmTimeline;
 
     //public void RegisterEcho(float worldTime)
     //{
@@ -155,29 +159,64 @@ public class RhythmManager : MonoBehaviour
         return EvaluateTiming(songTime);
     }
 
-    public  RhythmResult EvaluateTiming(float echoTime)
+    private RhythmResult EvaluateTiming(float echoTime)
     {
         if (nextExpectedBeat >= targetBeats.Count)
-        {
-            Debug.Log("All beats checked.");
             return RhythmResult.Ignore;
-        }
 
         float expected = targetBeats[nextExpectedBeat];
         bool isHit = Mathf.Abs(echoTime - expected) <= timingWindow;
 
+        nextExpectedBeat++;
+
         if (isHit)
         {
             Debug.Log($"Hit! Expected {expected:F2}s, got {echoTime:F2}s");
-            nextExpectedBeat++;
+            hitCount++;
+
+            if (hitCount == targetBeats.Count)
+            {
+                Debug.Log("All beats hit! Advancing to next hole...");
+                holeManager?.ActivateNextHole(); // Unlock next
+            }
+
             return RhythmResult.Hit;
         }
         else
         {
             Debug.Log($"Miss. Expected {expected:F2}s, got {echoTime:F2}s");
-            nextExpectedBeat++;
             return RhythmResult.Miss;
         }
+    }
+
+
+    void Update()
+    {
+        if (startTime < 0f || targetBeats.Count == 0)
+            return;
+
+        float maxAllowedTime = targetBeats[targetBeats.Count - 1] + timingWindow;
+        float elapsed = Time.time - startTime;
+
+        if (elapsed > maxAllowedTime)
+        {
+            Debug.Log("Rhythm sequence expired. Resetting holes.");
+            ResetRhythm();
+        }
+
+
+    }
+
+    private void ResetRhythm()
+    {
+        startTime = -1f;
+        nextExpectedBeat = 0;
+        hitCount = 0;
+        // Reset holes to Active (from HoleManager)
+        if (holeManager != null)
+            holeManager.ResetActivateAll();
+
+        rhythmTimeline?.ResetTimeline();
     }
 
 }

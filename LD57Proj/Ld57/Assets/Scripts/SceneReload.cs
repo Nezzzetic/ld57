@@ -14,8 +14,8 @@ public class SceneReload : MonoBehaviour
         
     }
 
-    public void ReloadScene()
+    public void ReloadScene(int index)
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+        UnityEngine.SceneManagement.SceneManager.LoadScene(index);
     }
 }
