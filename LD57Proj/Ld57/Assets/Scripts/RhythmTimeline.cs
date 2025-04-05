@@ -5,46 +5,69 @@ using UnityEngine.UI;
 public class RhythmTimeline : MonoBehaviour
 {
     public RhythmManager rhythmManager;
-    public RectTransform timelineFill; // Full bar
-    public RectTransform currentLine;
+    public RectTransform timelineFill;
     public GameObject expectedMarkPrefab;
     public GameObject actualMarkPrefab;
 
-    private float totalDuration = 5f;
+    public float pixelsPerSecond = 60f;
+
     private bool timelineStarted = false;
-    private List<RectTransform> expectedMarks = new List<RectTransform>();
+    private float startTime = 0f;
+
+    private List<ScrollingMark> scrollingMarks = new List<ScrollingMark>();
 
     void Start()
     {
-        totalDuration = rhythmManager.GetDuration();
-
-        // Spawn expected markers
-        foreach (float beat in rhythmManager.targetBeats)
+        // Preload all expected markers and position them statically
+        foreach (float beatTime in rhythmManager.targetBeats)
         {
-            var mark = Instantiate(expectedMarkPrefab, timelineFill);
-            float y =  (beat / totalDuration) * timelineFill.rect.height;
-            mark.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, y);
-            expectedMarks.Add(mark.GetComponent<RectTransform>());
+            GameObject marker = Instantiate(expectedMarkPrefab, timelineFill);
+            var rect = marker.GetComponent<RectTransform>();
+
+            float y = beatTime * pixelsPerSecond;
+            rect.anchoredPosition = new Vector2(0, y);
+
+            var scrolling = marker.AddComponent<ScrollingMark>();
+            scrolling.spawnTime = beatTime;
+            scrolling.pixelsPerSecond = pixelsPerSecond;
+            scrolling.originalY = y;
+            scrollingMarks.Add(scrolling);
         }
 
-        rhythmManager.OnEchoRegistered += AddActualMark;
-        rhythmManager.OnStart += () => timelineStarted = true;
+        rhythmManager.OnStart += () =>
+        {
+            timelineStarted = true;
+            startTime = Time.time;
+        };
+
+        rhythmManager.OnEchoRegistered += AddActualMarker;
     }
 
     void Update()
     {
-        if (!timelineStarted || rhythmManager.startTime < 0f) return;
+        if (!timelineStarted) return;
 
-        float elapsed = Time.time - rhythmManager.startTime;
-        float y = Mathf.Clamp01(elapsed / totalDuration) * timelineFill.rect.height;
+        float songTime = Time.time - startTime;
 
-        //currentLine.anchoredPosition = new Vector2(0, y);
+        foreach (var mark in scrollingMarks)
+        {
+            float y = mark.originalY - (songTime * pixelsPerSecond);
+            mark.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, y);
+        }
     }
 
-    void AddActualMark(float songTime)
+    void AddActualMarker(float songTime)
     {
-        var mark = Instantiate(actualMarkPrefab, timelineFill);
-        float y = (songTime / totalDuration) * timelineFill.rect.height;
-        mark.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, y);
+        GameObject marker = Instantiate(actualMarkPrefab, timelineFill);
+        var rect = marker.GetComponent<RectTransform>();
+
+        float y = songTime * pixelsPerSecond;
+        rect.anchoredPosition = new Vector2(0, y);
+
+        var scrolling = marker.AddComponent<ScrollingMark>();
+        scrolling.spawnTime = songTime;
+        scrolling.originalY = y;
+        scrolling.pixelsPerSecond = pixelsPerSecond;
+        scrollingMarks.Add(scrolling);
     }
 }
