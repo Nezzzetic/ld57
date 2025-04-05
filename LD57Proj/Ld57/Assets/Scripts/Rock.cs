@@ -1,56 +1,56 @@
+using System;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class Rock : MonoBehaviour
 {
-    private bool isHeld = false;
+    public RockState CurrentState { get; private set; } = RockState.Idle;
     private Rigidbody rb;
 
-    void Start()
+    public event Action<RockState> OnStateChanged;
+
+    private Vector3 targetPosition;
+    public float followSpeed = 20f; // how fast it snaps into position
+
+    void Awake()
     {
         rb = GetComponent<Rigidbody>();
     }
 
     void Update()
     {
-        if (isHeld)
+        if (CurrentState == RockState.Held)
         {
-            // Follow mouse in world space
-            Vector3 mousePos = Input.mousePosition;
-            mousePos.z = 10f; // Distance from camera
-            Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
-            transform.position = new Vector3(worldPos.x, 0.3f, worldPos.z); // Float above ground
-        }
-
-        if (Input.GetMouseButtonDown(0))
-        {
-            if (!isHeld)
-            {
-                TryPickUp();
-            }
-            else
-            {
-                Drop();
-            }
+            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * followSpeed);
         }
     }
 
-    void TryPickUp()
+    public void SetState(RockState newState)
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit))
+        if (CurrentState == newState) return;
+
+        CurrentState = newState;
+        OnStateChanged?.Invoke(CurrentState); // notify listeners
+
+        switch (CurrentState)
         {
-            if (hit.collider.gameObject == this.gameObject)
-            {
-                isHeld = true;
+            case RockState.Held:
                 rb.useGravity = false;
                 rb.linearVelocity = Vector3.zero;
-            }
+                break;
+
+            case RockState.Falling:
+            case RockState.Idle:
+                rb.useGravity = true;
+                break;
         }
     }
 
-    void Drop()
+    public void UpdateHeldPosition(Vector3 target)
     {
-        isHeld = false;
-        rb.useGravity = true;
+        if (CurrentState == RockState.Held)
+        {
+            targetPosition = target;
+        }
     }
 }
