@@ -44,7 +44,7 @@ public class HoleManager : MonoBehaviour
     {
         if (!allHoles.Contains(hole))
         {
-            allHoles.Add(hole);
+            //allHoles.Add(hole);
             hole.OnStateChanged += OnHoleStateChanged;
         }
     }
@@ -100,13 +100,13 @@ public class HoleManager : MonoBehaviour
             Debug.Log("All holes activated.");
             return;
         }
-
+        currentHoleIndex++;
         var hole = orderedHoles[currentHoleIndex];
 
         if (hole.CurrentState == HoleState.Inactive)
         {
             hole.SetState(HoleState.Active);
-            currentHoleIndex++;
+            
         }
         else
         {
@@ -134,8 +134,8 @@ public class HoleManager : MonoBehaviour
 
     public void RegisterAllHoles()
     {
-        allHoles.Clear();
-        allHoles.AddRange(FindObjectsOfType<Hole>());
+        //allHoles.Clear();
+        //allHoles.AddRange(FindObjectsOfType<Hole>());
 
         foreach (var hole in allHoles)
         {

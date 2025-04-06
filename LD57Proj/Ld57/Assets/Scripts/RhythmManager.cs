@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -39,6 +40,7 @@ public class RhythmManager : MonoBehaviour
         if (currentSequenceIndex >= rhythmSeries.Count)
         {
             Debug.Log("All rhythm sequences complete!");
+            UnityEngine.SceneManagement.SceneManager.LoadScene(2);
             return;
         }
 

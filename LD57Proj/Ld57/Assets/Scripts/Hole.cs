@@ -22,6 +22,7 @@ public class Hole : MonoBehaviour
 
     private float PlayEchoTimer=-1;
     public RhythmTimeline rhythmTimeline;
+    public GameObject top;
 
     void Awake()
 {
@@ -49,9 +50,11 @@ public class Hole : MonoBehaviour
         {
             case HoleState.Inactive:
                 markerRenderer.material.color = inactiveColor;
+                if (top != null) top.SetActive(true);
                 break;
 
             case HoleState.Active:
+                if (top!=null) top.SetActive(false);
                 markerRenderer.material.color = activeColor;
                 PlayEchoTimer = -1;
                 audioSource.Stop();
