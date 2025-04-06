@@ -56,7 +56,7 @@ public class Rock : MonoBehaviour
     {
         if (CurrentState == RockState.Held)
         {
-            targetPosition = target;
+            targetPosition = target+Vector3.right*0.25f+Vector3.back * 0.25f;
         }
     }
 }

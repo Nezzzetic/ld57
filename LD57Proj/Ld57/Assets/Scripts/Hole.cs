@@ -62,7 +62,7 @@ public class Hole : MonoBehaviour
                 markerRenderer.material.color = activeColor;
                 PlayEchoTimer = -1;
                 audioSource.Stop();
-                if (currentRock != null) { Destroy(currentRock); currentRock = null; }
+                if (currentRock != null) { Destroy(currentRock.gameObject); currentRock = null; }
                 break;
 
             case HoleState.FlyingStone:

@@ -19,6 +19,7 @@ public class RhythmManager : MonoBehaviour
     public AudioSource ResetAudio;
     public AudioSource HitAudio;
     public AudioClip[] HitSound;
+    public GameObject Tutor;
 
     public void LoadRhythmSequence(List<float> beats)
     {
@@ -164,13 +165,14 @@ public class RhythmManager : MonoBehaviour
         if (isHit)
         {
             Debug.Log($"Hit! Expected {expected:F2}s, got {echoTime:F2}s");
+            nextExpectedBeat++;
         }
         else
         {
             Debug.Log($"Miss. Expected {expected:F2}s, got {echoTime:F2}s");
         }
 
-        nextExpectedBeat++;
+        
         return isHit;
     }
 
@@ -209,15 +211,22 @@ public class RhythmManager : MonoBehaviour
             return RhythmResult.Ignore;
 
         float expected = currentBeats[nextExpectedBeat];
-        bool isHit = Mathf.Abs(echoTime - expected) <= timingWindow;
+        float findExpected = 10;
+        foreach (var beat in currentBeats)
+        {
+            if (Mathf.Abs(echoTime - beat) < findExpected) findExpected = Mathf.Abs(echoTime - beat);
+        }
+        //bool isHit = Mathf.Abs(echoTime - expected) <= timingWindow;
+        bool isHit = findExpected <= timingWindow;
 
-        nextExpectedBeat++;
 
         if (isHit)
         {
+            nextExpectedBeat++;
             hitCount++;
             if (hitCount == currentBeats.Count)
             {
+                Tutor.SetActive(false);
                 LoadNextRhythmInSeries();
                 return RhythmResult.Win;
             }
