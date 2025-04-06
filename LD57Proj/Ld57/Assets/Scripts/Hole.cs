@@ -25,6 +25,7 @@ public class Hole : MonoBehaviour
     public RhythmManager RhythmManager;
     public GameObject top;
     public GameObject OpenFX;
+    public GameObject WithRockFX;
 
     void Awake()
 {
@@ -58,7 +59,7 @@ public class Hole : MonoBehaviour
             case HoleState.Active:
                 if (top!=null) top.SetActive(false);
                 if (OpenFX != null) { OpenFX.SetActive(true);Destroy(OpenFX, 4); }
-                
+                if (WithRockFX != null) { WithRockFX.SetActive(false); }
                 markerRenderer.material.color = activeColor;
                 PlayEchoTimer = -1;
                 audioSource.Stop();
@@ -68,6 +69,7 @@ public class Hole : MonoBehaviour
             case HoleState.FlyingStone:
                 markerRenderer.material.color = flyingColor;
                 audioSource.clip = currentRock.enterSound;
+                if (WithRockFX != null) { WithRockFX.SetActive(true); }
                 float delay = echoDelay;
                 float fallTime = Time.time;
                 rhythmTimeline?.ShowFallingRock(fallTime, delay);
@@ -75,8 +77,8 @@ public class Hole : MonoBehaviour
                 break;
 
             case HoleState.Landed:
-                
-                
+
+                if (WithRockFX != null) { WithRockFX.SetActive(false); }
                 // Result color (green/yellow) applied after echo
                 break;
         }
@@ -86,7 +88,9 @@ public class Hole : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (state == HoleState.Inactive) return;
-        if (state != HoleState.Active) { RhythmManager.ResetRhythm(); RhythmManager.ResetAudio.Play(); }
+        if (state != HoleState.Active) { RhythmManager.ResetRhythm(); RhythmManager.ResetAudio.Play();
+            RhythmManager.Black.SetTrigger("Black");
+        }
         else
         {
             if (other.CompareTag("Rock"))

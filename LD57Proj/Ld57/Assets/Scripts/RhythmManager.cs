@@ -20,6 +20,7 @@ public class RhythmManager : MonoBehaviour
     public AudioSource HitAudio;
     public AudioClip[] HitSound;
     public GameObject Tutor;
+    public Animator Black;
 
     public void LoadRhythmSequence(List<float> beats)
     {
@@ -253,6 +254,8 @@ public class RhythmManager : MonoBehaviour
             Debug.Log("Rhythm sequence expired. Resetting holes.");
             ResetRhythm();
             ResetAudio.Play();
+
+            Black.SetTrigger("Black");
         }
 
 
