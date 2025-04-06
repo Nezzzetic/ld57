@@ -24,6 +24,7 @@ public class Hole : MonoBehaviour
     public RhythmTimeline rhythmTimeline;
     public RhythmManager RhythmManager;
     public GameObject top;
+    public GameObject OpenFX;
 
     void Awake()
 {
@@ -56,6 +57,8 @@ public class Hole : MonoBehaviour
 
             case HoleState.Active:
                 if (top!=null) top.SetActive(false);
+                if (OpenFX != null) { OpenFX.SetActive(true);Destroy(OpenFX, 4); }
+                
                 markerRenderer.material.color = activeColor;
                 PlayEchoTimer = -1;
                 audioSource.Stop();

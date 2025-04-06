@@ -87,6 +87,7 @@ public class RhythmTimeline : MonoBehaviour
         {
             float y = mark.originalY - (songTime * pixelsPerSecond);
             mark.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, y);
+            if (y<-50) mark.gameObject.SetActive(false);
         }
     }
 
@@ -115,7 +116,6 @@ public class RhythmTimeline : MonoBehaviour
 
         float totalTravelTime = delay;
         float pixelsPerSecond = Mathf.Abs(endX - startX) / totalTravelTime;
-        Debug.Log("totalTravelTime "+ totalTravelTime+ " pixelsPerSecond " + pixelsPerSecond);
 
         var indicator = rockUI.AddComponent<RockIndicator>();
         indicator.speed = pixelsPerSecond;

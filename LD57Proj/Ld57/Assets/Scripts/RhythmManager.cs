@@ -276,11 +276,10 @@ public class RhythmManager : MonoBehaviour
     {
         rhythmSeries = new List<List<float>>()
     {
-            new List<float> { 1, 2, 3, 13 },
         new List<float> { 1.5f},
         new List<float> { 1.5f, 6.75f},
-        new List<float> { 3f, 4.75f, 10.0f},
-        new List<float> { 5f, 6f, 8.0f},
+        new List<float> { 5f, 5.25f, 5.5f},
+        new List<float> { 5f, 6f, 8.25f},
         new List<float> { 3f, 4.75f, 10.0f,12},
         new List<float> { 7, 7.25f, 7.5f, 7.75f }
     };
