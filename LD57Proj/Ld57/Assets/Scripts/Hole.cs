@@ -72,10 +72,7 @@ public class Hole : MonoBehaviour
                 break;
 
             case HoleState.Landed:
-                if (currentRock != null) {
-                    audioSource.clip = currentRock.echoSound;
-                    audioSource.Play();
-                }
+                
                 
                 // Result color (green/yellow) applied after echo
                 break;
@@ -86,20 +83,21 @@ public class Hole : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (state == HoleState.Inactive) return;
-        if (state != HoleState.Active) RhythmManager.ResetRhythm();
-        else { 
-        if (other.CompareTag("Rock"))
+        if (state != HoleState.Active) { RhythmManager.ResetRhythm(); RhythmManager.ResetAudio.Play(); }
+        else
         {
-            
+            if (other.CompareTag("Rock"))
+            {
+
                 Rock rock = other.GetComponent<Rock>();
-            if (rock != null)
-                rock.SetState(RockState.EnteringHole);
-            currentRock = rock;
-            SetState(HoleState.FlyingStone);
-            rhythmManager?.StartTimer(Time.time);
-            PlayEchoTimer = echoDelay;
-        
-        }
+                if (rock != null)
+                    rock.SetState(RockState.EnteringHole);
+                currentRock = rock;
+                SetState(HoleState.FlyingStone);
+                rhythmManager?.StartTimer(Time.time);
+                PlayEchoTimer = echoDelay;
+
+            }
         }
     }
 
@@ -112,10 +110,20 @@ public class Hole : MonoBehaviour
         if (result == RhythmResult.Hit)
         {
             markerRenderer.material.color = successColor;
+            if (currentRock != null)
+            {
+                audioSource.clip = currentRock.echoSoundGood;
+                audioSource.Play();
+            }
         }
         else if (result == RhythmResult.Miss)
         {
             markerRenderer.material.color = failColor;
+            if (currentRock != null)
+            {
+                audioSource.clip = currentRock.echoSound;
+                audioSource.Play();
+            }
         }
         if (result != RhythmResult.Win)
             SetState(HoleState.Landed);

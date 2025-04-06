@@ -15,6 +15,10 @@ public class RhythmManager : MonoBehaviour
 
     public HoleManager holeManager;
     public RhythmTimeline rhythmTimeline;
+    public AudioSource WinRound;
+    public AudioSource ResetAudio;
+    public AudioSource HitAudio;
+    public AudioClip[] HitSound;
 
     public void LoadRhythmSequence(List<float> beats)
     {
@@ -36,7 +40,7 @@ public class RhythmManager : MonoBehaviour
     {
         
         currentSequenceIndex++;
-
+        WinRound.Play();
         if (currentSequenceIndex >= rhythmSeries.Count)
         {
             Debug.Log("All rhythm sequences complete!");
@@ -217,7 +221,8 @@ public class RhythmManager : MonoBehaviour
                 LoadNextRhythmInSeries();
                 return RhythmResult.Win;
             }
-
+            HitAudio.clip = HitSound[hitCount-1];
+            HitAudio.Play();
             return RhythmResult.Hit;
         }
 
@@ -238,6 +243,7 @@ public class RhythmManager : MonoBehaviour
         {
             Debug.Log("Rhythm sequence expired. Resetting holes.");
             ResetRhythm();
+            ResetAudio.Play();
         }
 
 
@@ -245,6 +251,7 @@ public class RhythmManager : MonoBehaviour
 
     public void ResetRhythm()
     {
+        
         startTime = -1f;
         nextExpectedBeat = 0;
         hitCount = 0;
@@ -269,12 +276,13 @@ public class RhythmManager : MonoBehaviour
     {
         rhythmSeries = new List<List<float>>()
     {
+            new List<float> { 1, 2, 3, 13 },
         new List<float> { 1.5f},
-        new List<float> { 1.5f, 4.75f},
+        new List<float> { 1.5f, 6.75f},
         new List<float> { 3f, 4.75f, 10.0f},
         new List<float> { 5f, 6f, 8.0f},
         new List<float> { 3f, 4.75f, 10.0f,12},
-        new List<float> { 7, 7, 7,7}
+        new List<float> { 7, 7.25f, 7.5f, 7.75f }
     };
 
         LoadRhythmSequence(rhythmSeries[0]);

@@ -8,6 +8,7 @@ public class Rock : MonoBehaviour
     private Rigidbody rb;
     public Collider Mycollider;
     public AudioClip echoSound;
+    public AudioClip echoSoundGood;
     public AudioClip enterSound;
 
     public event Action<RockState> OnStateChanged;
