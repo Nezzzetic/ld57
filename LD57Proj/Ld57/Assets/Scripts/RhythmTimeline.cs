@@ -13,6 +13,14 @@ public class RhythmTimeline : MonoBehaviour
     private bool timelineStarted = false;
     private float startTime = 0f;
 
+    public GameObject rockIndicatorPrefab; // assign in inspector
+    public RectTransform rockIndicatorContainer;
+    public float rockSlideSpeed = 60f;
+    public float rockStartOffsetX = -200f;
+    public float rockEndX = 0f;
+
+    private List<RockIndicator> rockIndicators = new List<RockIndicator>();
+
     private List<ScrollingMark> scrollingMarks = new List<ScrollingMark>();
 
     void Start()
@@ -37,7 +45,14 @@ public class RhythmTimeline : MonoBehaviour
                 Destroy(mark.gameObject);
         }
 
+        foreach (var mark in rockIndicators)
+        {
+            if (mark != null)
+                Destroy(mark.gameObject);
+        }
+
         scrollingMarks.Clear();
+        rockIndicators.Clear();
         BuildInitialTimeline();
 
         timelineStarted = false;
@@ -88,5 +103,25 @@ public class RhythmTimeline : MonoBehaviour
         scroll.pixelsPerSecond = pixelsPerSecond;
 
         scrollingMarks.Add(scroll);
+    }
+
+    public void ShowFallingRock(float fallTime, float delay)
+    {
+        var rockUI = Instantiate(rockIndicatorPrefab, rockIndicatorContainer);
+        var rect = rockUI.GetComponent<RectTransform>();
+
+        float startX = -10f;
+        float endX = 0f;
+
+        float totalTravelTime = delay;
+        float pixelsPerSecond = Mathf.Abs(endX - startX) / totalTravelTime;
+        Debug.Log("totalTravelTime "+ totalTravelTime+ " pixelsPerSecond " + pixelsPerSecond);
+
+        var indicator = rockUI.AddComponent<RockIndicator>();
+        indicator.speed = pixelsPerSecond;
+        indicator.endX = endX;
+
+        rect.anchoredPosition = new Vector2(startX, 0f); // align with beat bar
+        rockIndicators.Add(indicator);
     }
 }

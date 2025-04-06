@@ -479,7 +479,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Mycollider: {fileID: 78233964895428542}
   echoSound: {fileID: 8300000, guid: c09d48f655057d040875d85982ebc5d3, type: 3}
-  enterSound: {fileID: 8300000, guid: 15d1a188ce9ba434d91cac023c6859c0, type: 3}
+  enterSound: {fileID: 8300000, guid: c6769b4e7bc43dd42878b902e1a2914f, type: 3}
   followSpeed: 25
 --- !u!54 &2476420841408148472
 Rigidbody:

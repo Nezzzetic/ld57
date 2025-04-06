@@ -219,4 +219,14 @@ public class RhythmManager : MonoBehaviour
         rhythmTimeline?.ResetTimeline();
     }
 
+    public void StartTimer(float time)
+    {
+        if (startTime < 0f)
+        {
+            startTime = time;
+            Debug.Log("Rhythm started at first drop.");
+            OnStart?.Invoke(); // for timeline, etc.
+        }
+    }
+
 }

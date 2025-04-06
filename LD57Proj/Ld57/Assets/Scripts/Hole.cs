@@ -20,7 +20,7 @@ public class Hole : MonoBehaviour
     private Rock currentRock;
 
     private float PlayEchoTimer=-1;
-
+    public RhythmTimeline rhythmTimeline;
 
     void Awake()
 {
@@ -52,12 +52,16 @@ public class Hole : MonoBehaviour
             case HoleState.Active:
                 markerRenderer.material.color = activeColor;
                 PlayEchoTimer = -1;
+                audioSource.Stop();
                 if (currentRock != null) { Destroy(currentRock); currentRock = null; }
                 break;
 
             case HoleState.FlyingStone:
                 markerRenderer.material.color = flyingColor;
                 audioSource.clip = currentRock.enterSound;
+                float delay = echoDelay;
+                float fallTime = Time.time;
+                rhythmTimeline?.ShowFallingRock(fallTime, delay);
                 audioSource.Play();
                 break;
 
@@ -81,8 +85,8 @@ public class Hole : MonoBehaviour
                 rock.SetState(RockState.EnteringHole);
             currentRock = rock;
             SetState(HoleState.FlyingStone);
-
-            PlayEchoTimer=echoDelay;
+            rhythmManager?.StartTimer(Time.time);
+            PlayEchoTimer =echoDelay;
         }
     }
 
