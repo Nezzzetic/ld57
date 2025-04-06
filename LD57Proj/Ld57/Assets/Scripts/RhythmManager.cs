@@ -243,7 +243,7 @@ public class RhythmManager : MonoBehaviour
 
     }
 
-    private void ResetRhythm()
+    public void ResetRhythm()
     {
         startTime = -1f;
         nextExpectedBeat = 0;
@@ -269,9 +269,12 @@ public class RhythmManager : MonoBehaviour
     {
         rhythmSeries = new List<List<float>>()
     {
-        new List<float> { 1.0f},
-        new List<float> { 1.0f, 3.75f},
-        new List<float> { 2.5f, 3.75f, 8.0f}
+        new List<float> { 1.5f},
+        new List<float> { 1.5f, 4.75f},
+        new List<float> { 3f, 4.75f, 10.0f},
+        new List<float> { 5f, 6f, 8.0f},
+        new List<float> { 3f, 4.75f, 10.0f,12},
+        new List<float> { 7, 7, 7,7}
     };
 
         LoadRhythmSequence(rhythmSeries[0]);

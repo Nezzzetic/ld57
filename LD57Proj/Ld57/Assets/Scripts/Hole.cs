@@ -22,6 +22,7 @@ public class Hole : MonoBehaviour
 
     private float PlayEchoTimer=-1;
     public RhythmTimeline rhythmTimeline;
+    public RhythmManager RhythmManager;
     public GameObject top;
 
     void Awake()
@@ -84,17 +85,21 @@ public class Hole : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (state != HoleState.Active) return;
-
+        if (state == HoleState.Inactive) return;
+        if (state != HoleState.Active) RhythmManager.ResetRhythm();
+        else { 
         if (other.CompareTag("Rock"))
         {
-            Rock rock = other.GetComponent<Rock>();
+            
+                Rock rock = other.GetComponent<Rock>();
             if (rock != null)
                 rock.SetState(RockState.EnteringHole);
             currentRock = rock;
             SetState(HoleState.FlyingStone);
             rhythmManager?.StartTimer(Time.time);
-            PlayEchoTimer =echoDelay;
+            PlayEchoTimer = echoDelay;
+        
+        }
         }
     }
 
