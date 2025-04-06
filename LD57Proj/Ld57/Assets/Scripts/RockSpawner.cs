@@ -14,7 +14,9 @@ public class RockSpawner : MonoBehaviour
 
     public void SpawnNextRock()
     {
+
         GameObject rockGO = Instantiate(rockPrefab, spawnPoint.position, Quaternion.identity);
+        //rockGO.transform.rota0210tion = Random.rotation;
         currentRock = rockGO.GetComponent<Rock>();
         currentRock.OnStateChanged += OnRockStateChanged;
     }

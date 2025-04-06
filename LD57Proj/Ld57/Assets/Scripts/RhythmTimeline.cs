@@ -61,7 +61,7 @@ public class RhythmTimeline : MonoBehaviour
 
     private void BuildInitialTimeline()
     {
-        foreach (float beat in rhythmManager.targetBeats)
+        foreach (float beat in rhythmManager.GetCurrentBeats())
         {
             var marker = Instantiate(expectedMarkPrefab, timelineFill);
             var rect = marker.GetComponent<RectTransform>();

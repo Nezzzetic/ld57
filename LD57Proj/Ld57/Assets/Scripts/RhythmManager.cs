@@ -3,15 +3,52 @@ using UnityEngine;
 
 public class RhythmManager : MonoBehaviour
 {
-    public List<float> targetBeats = new List<float>(); // seconds from first echo
-    public float timingWindow = 0.25f; // allowed error
-
-    public float startTime = -1f;
-    private int nextExpectedBeat = 0;
+    public List<List<float>> rhythmSeries = new List<List<float>>();
+    private int currentSequenceIndex = 0;
+    public List<float> currentBeats = new List<float>();
     private int hitCount = 0;
+    private int nextExpectedBeat = 0;
+    private float startTime = -1f;
+
+    public float timingWindow = 0.25f; // allowed error
 
     public HoleManager holeManager;
     public RhythmTimeline rhythmTimeline;
+
+    public void LoadRhythmSequence(List<float> beats)
+    {
+        currentBeats = beats;
+        hitCount = 0;
+        nextExpectedBeat = 0;
+        startTime = -1f;
+        Debug.Log($"Loading rhythm sequence {currentSequenceIndex}");
+        OnStart?.Invoke(); // Timeline will rebuild on this
+        rhythmTimeline?.ResetTimeline();
+    }
+
+    public List<float> GetCurrentBeats()
+    {
+        return currentBeats;
+    }
+
+    public void LoadNextRhythmInSeries()
+    {
+        
+        currentSequenceIndex++;
+
+        if (currentSequenceIndex >= rhythmSeries.Count)
+        {
+            Debug.Log("All rhythm sequences complete!");
+            return;
+        }
+
+        Debug.Log($"Loading rhythm sequence {currentSequenceIndex}");
+        LoadRhythmSequence(rhythmSeries[currentSequenceIndex]);
+        ResetRhythm();
+        holeManager?.ActivateNextHole();
+        
+    }
+
 
     //public void RegisterEcho(float worldTime)
     //{
@@ -62,7 +99,7 @@ public class RhythmManager : MonoBehaviour
 
     public float GetDuration()
     {
-        return targetBeats.Count > 0 ? targetBeats[targetBeats.Count - 1] + 1.0f : 5f;
+        return currentBeats.Count > 0 ? currentBeats[currentBeats.Count - 1] + 1.0f : 5f;
     }
 
     public void RegisterEcho(float worldTime)
@@ -109,13 +146,13 @@ public class RhythmManager : MonoBehaviour
 
     private bool CheckTiming(float echoTime)
     {
-        if (nextExpectedBeat >= targetBeats.Count)
+        if (nextExpectedBeat >= currentBeats.Count)
         {
             Debug.Log("All beats checked.");
             return false;
         }
 
-        float expected = targetBeats[nextExpectedBeat];
+        float expected = currentBeats[nextExpectedBeat];
         bool isHit = Mathf.Abs(echoTime - expected) <= timingWindow;
 
         if (isHit)
@@ -136,7 +173,8 @@ public class RhythmManager : MonoBehaviour
     {
         Hit,
         Miss,
-        Ignore
+        Ignore,
+        Win
     }
 
     public RhythmResult RegisterEchoWithResult(float worldTime)
@@ -161,41 +199,37 @@ public class RhythmManager : MonoBehaviour
 
     private RhythmResult EvaluateTiming(float echoTime)
     {
-        if (nextExpectedBeat >= targetBeats.Count)
+        if (nextExpectedBeat >= currentBeats.Count)
             return RhythmResult.Ignore;
 
-        float expected = targetBeats[nextExpectedBeat];
+        float expected = currentBeats[nextExpectedBeat];
         bool isHit = Mathf.Abs(echoTime - expected) <= timingWindow;
 
         nextExpectedBeat++;
 
         if (isHit)
         {
-            Debug.Log($"Hit! Expected {expected:F2}s, got {echoTime:F2}s");
             hitCount++;
-
-            if (hitCount == targetBeats.Count)
+            if (hitCount == currentBeats.Count)
             {
-                Debug.Log("All beats hit! Advancing to next hole...");
-                holeManager?.ActivateNextHole(); // Unlock next
+                LoadNextRhythmInSeries();
+                return RhythmResult.Win;
             }
 
             return RhythmResult.Hit;
         }
-        else
-        {
-            Debug.Log($"Miss. Expected {expected:F2}s, got {echoTime:F2}s");
-            return RhythmResult.Miss;
-        }
+
+        return RhythmResult.Miss;
     }
+
 
 
     void Update()
     {
-        if (startTime < 0f || targetBeats.Count == 0)
+        if (startTime < 0f || currentBeats.Count == 0)
             return;
 
-        float maxAllowedTime = targetBeats[targetBeats.Count - 1] + timingWindow;
+        float maxAllowedTime = currentBeats[currentBeats.Count - 1] + timingWindow;
         float elapsed = Time.time - startTime;
 
         if (elapsed > maxAllowedTime)
@@ -227,6 +261,18 @@ public class RhythmManager : MonoBehaviour
             Debug.Log("Rhythm started at first drop.");
             OnStart?.Invoke(); // for timeline, etc.
         }
+    }
+
+    void Start()
+    {
+        rhythmSeries = new List<List<float>>()
+    {
+        new List<float> { 1.0f},
+        new List<float> { 1.0f, 3.75f},
+        new List<float> { 2.5f, 3.75f, 8.0f}
+    };
+
+        LoadRhythmSequence(rhythmSeries[0]);
     }
 
 }

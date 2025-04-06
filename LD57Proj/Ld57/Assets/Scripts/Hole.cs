@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Audio;
 using static RhythmManager;
 using static UnityEngine.CullingGroup;
 
@@ -26,6 +27,7 @@ public class Hole : MonoBehaviour
 {
     audioSource = gameObject.AddComponent<AudioSource>();
     audioSource.playOnAwake = false;
+        audioSource.volume = 0.3f;
 
     SetState(HoleState.Inactive);
     PlayEchoTimer = -1;
@@ -66,8 +68,11 @@ public class Hole : MonoBehaviour
                 break;
 
             case HoleState.Landed:
-                audioSource.clip = currentRock.echoSound;
-                audioSource.Play();
+                if (currentRock != null) {
+                    audioSource.clip = currentRock.echoSound;
+                    audioSource.Play();
+                }
+                
                 // Result color (green/yellow) applied after echo
                 break;
         }
@@ -104,8 +109,8 @@ public class Hole : MonoBehaviour
         {
             markerRenderer.material.color = failColor;
         }
-
-        SetState(HoleState.Landed);
+        if (result != RhythmResult.Win)
+            SetState(HoleState.Landed);
     }
 
     private void Update()
