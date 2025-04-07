@@ -46,7 +46,7 @@ public class RhythmManager : MonoBehaviour
         if (currentSequenceIndex >= rhythmSeries.Count)
         {
             Debug.Log("All rhythm sequences complete!");
-            UnityEngine.SceneManagement.SceneManager.LoadScene(2);
+            UnityEngine.SceneManagement.SceneManager.LoadScene(1);
             return;
         }
 
@@ -288,10 +288,10 @@ public class RhythmManager : MonoBehaviour
     {
         rhythmSeries = new List<List<float>>()
     {
-        new List<float> { 1.5f},
-        new List<float> { 1.5f, 6.75f},
-        new List<float> { 5f, 5.25f, 5.5f},
+        new List<float> { 2f},
+        new List<float> { 2f, 7.25f},
         new List<float> { 5f, 6f, 8.25f},
+        new List<float> { 2f, 4f, 6f, 8f},
         new List<float> { 3f, 4.75f, 10.0f,12},
         new List<float> { 7, 7.25f, 7.5f, 7.75f }
     };

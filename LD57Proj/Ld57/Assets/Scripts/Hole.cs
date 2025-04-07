@@ -69,6 +69,7 @@ public class Hole : MonoBehaviour
             case HoleState.FlyingStone:
                 markerRenderer.material.color = flyingColor;
                 audioSource.clip = currentRock.enterSound;
+                audioSource.pitch = 4 - echoDelay / 2;
                 if (WithRockFX != null) { WithRockFX.SetActive(true); }
                 float delay = echoDelay;
                 float fallTime = Time.time;
